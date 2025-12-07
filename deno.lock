@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@hono/hono@*": "4.10.7",
+    "npm:@resvg/resvg-wasm@2.6.2": "2.6.2",
     "npm:@types/node@*": "24.2.0",
     "npm:satori@0.10.11": "0.10.11",
     "npm:yoga-wasm-web@0.3.3": "0.3.3"
@@ -12,6 +13,9 @@
     }
   },
   "npm": {
+    "@resvg/resvg-wasm@2.6.2": {
+      "integrity": "sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw=="
+    },
     "@shuding/opentype.js@1.4.0-beta.0": {
       "integrity": "sha512-3NgmNyH3l/Hv6EvsWJbsvpcpUba6R8IREQ83nH83cyakCw7uM1arZKNfHwv1Wz6jgqrF/j4x5ELvR6PnK9nTcA==",
       "dependencies": [
@@ -122,6 +126,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@hono/hono@*",
+      "npm:@resvg/resvg-wasm@2.6.2",
       "npm:satori@0.10.11",
       "npm:yoga-wasm-web@0.3.3"
     ]

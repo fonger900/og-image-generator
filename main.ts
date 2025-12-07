@@ -1,19 +1,23 @@
 import { Hono } from "hono";
 import satori, { init } from "satori/wasm";
 import initYoga from "yoga-wasm-web";
+import { Resvg, initWasm } from "@resvg/resvg-wasm"; // Import Resvg
 
-// --- FIX STARTS HERE ---
-// 1. Manually fetch the WASM binary from a CDN because Deno doesn't bundle it automatically.
-const wasmResponse = await fetch("https://unpkg.com/yoga-wasm-web@0.3.3/dist/yoga.wasm");
-const wasmBuffer = await wasmResponse.arrayBuffer();
-const yoga = await initYoga(wasmBuffer);
-// --- FIX ENDS HERE ---
+// --- 1. INITIALIZE WASM (YOGA & RESVG) ---
 
+// Load Yoga (Layout Engine)
+const yogaWasm = await fetch("https://unpkg.com/yoga-wasm-web@0.3.3/dist/yoga.wasm").then(res => res.arrayBuffer());
+const yoga = await initYoga(yogaWasm);
 init(yoga);
+
+// Load Resvg (SVG -> PNG Renderer)
+// We fetch the index_bg.wasm specifically for version 2.6.2
+const resvgWasm = await fetch("https://unpkg.com/@resvg/resvg-wasm@2.6.2/index_bg.wasm");
+await initWasm(resvgWasm);
 
 const app = new Hono();
 
-// 2. Load a font (Required for Satori)
+// --- 2. LOAD FONTS ---
 const fontData = await fetch(
   "https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf"
 ).then((res) => res.arrayBuffer());
@@ -23,6 +27,7 @@ app.get("/og", async (c) => {
   const text = title || "Hermit Bakery";
   const sub = subtitle || "Fresh Sourdough Daily";
 
+  // --- 3. GENERATE SVG (SATORI) ---
   const svg = await satori(
     {
       type: "div",
@@ -69,8 +74,23 @@ app.get("/og", async (c) => {
     }
   );
 
-  c.header("Content-Type", "image/svg+xml");
-  return c.body(svg);
+  // --- 4. RENDER TO PNG (RESVG) ---
+  const resvg = new Resvg(svg, {
+    fitTo: {
+      mode: "width",
+      value: 800,
+    },
+  });
+
+  const pngData = resvg.render();
+  const pngBuffer = pngData.asPng();
+
+  // --- 5. RETURN IMAGE ---
+  c.header("Content-Type", "image/png");
+  // Optional: Cache control so browsers don't hammer your server
+  c.header("Cache-Control", "public, max-age=604800"); 
+  
+  return c.body(pngBuffer);
 });
 
 Deno.serve(app.fetch);
