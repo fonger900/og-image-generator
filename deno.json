@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-read --allow-env --allow-net main.ts"
+  },
+  "imports": {
+    "hono": "jsr:@hono/hono",
+    "satori": "npm:satori@0.10.11",
+    "satori/wasm": "npm:satori@0.10.11/wasm",
+    "yoga-wasm-web": "npm:yoga-wasm-web@0.3.3"
+  }
+}
